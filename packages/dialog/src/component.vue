@@ -1,6 +1,6 @@
 <template>
   <transition name="dialog-fade">
-    <div class="el-dialog__wrapper" v-show="visible" @click.self="handleWrapperClick">
+    <div class="el-dialog__wrapper" tabindex="-1" v-show="visible" @click.self="handleWrapperClick">
       <div
         class="el-dialog"
         :class="[sizeClass, customClass]"
@@ -10,9 +10,10 @@
           <slot name="title">
             <span class="el-dialog__title">{{title}}</span>
           </slot>
-          <div class="el-dialog__headerbtn">
-            <i v-if="showClose" class="el-dialog__close el-icon el-icon-close" @click='handleClose'></i>
-          </div>
+          <button type="button" class="el-dialog__headerbtn" aria-label="Close" 
+                  v-if="showClose" @click="handleClose">
+            <i class="el-dialog__close el-icon el-icon-close"></i>
+          </button>
         </div>
         <div class="el-dialog__body" v-if="rendered"><slot></slot></div>
         <div class="el-dialog__footer" v-if="$slots.footer">
@@ -84,18 +85,10 @@
       },
       beforeClose: Function
     },
-    data() {
-      return {
-        visible: false
-      };
-    },
 
     watch: {
-      value(val) {
-        this.visible = val;
-      },
       visible(val) {
-        this.$emit('input', val);
+        this.$emit('update:visible', val);
         if (val) {
           this.$emit('open');
           this.$el.addEventListener('scroll', this.updatePopper);
@@ -125,9 +118,15 @@
       },
       handleClose() {
         if (typeof this.beforeClose === 'function') {
-          this.beforeClose(this.close);
+          this.beforeClose(this.hide);
         } else {
-          this.close();
+          this.hide();
+        }
+      },
+      hide(cancel) {
+        if (cancel !== false) {
+          this.$emit('update:visible', false);
+          this.$emit('visible-change', false);
         }
       },
       updatePopper() {
@@ -137,7 +136,7 @@
     },
 
     mounted() {
-      if (this.value) {
+      if (this.visible) {
         this.rendered = true;
         this.open();
       }

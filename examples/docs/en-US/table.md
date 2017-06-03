@@ -278,6 +278,32 @@
   };
 </script>
 
+<style>
+  .el-table .info-row {
+    background: #c9e5f5;
+  }
+
+  .el-table .positive-row {
+    background: #e2f0e4;
+  }
+
+  .demo-table .name-wrapper {
+    display: inline-block;
+  }
+
+  .demo-table .demo-table-expand {
+    label {
+      width: 90px;
+      color: #99a9bf;
+    }
+    .el-form-item {
+      margin-right: 0;
+      margin-bottom: 0;
+      width: 50%;
+    }
+  }
+</style>
+
 ## Table
 
 Display multiple data with similar format. You can sort, filter, compare your data in a table.
@@ -1305,7 +1331,8 @@ Filter the table to find desired data.
       label="Tag"
       width="100"
       :filters="[{ text: 'Home', value: 'Home' }, { text: 'Office', value: 'Office' }]"
-      :filter-method="filterTag">
+      :filter-method="filterTag"
+      filter-placement="bottom-end">
       <template scope="scope">
         <el-tag
           :type="scope.row.tag === 'Home' ? 'primary' : 'success'"
@@ -1562,7 +1589,7 @@ For table of numbers, you can add an extra row at the table footer displaying ea
       label="Amount 3">
     </el-table-column>
   </el-table>
-  
+
   <el-table
     :data="tableData6"
     border
@@ -1731,7 +1758,7 @@ For table of numbers, you can add an extra row at the table footer displaying ea
 | fixed | whether column is fixed at left/right. Will be fixed at left if `true` | string/boolean | true/left/right | — |
 | render-header | render function for table header of this column | Function(h, { column, $index }) | — | — |
 | sortable | whether column can be sorted | boolean | — | false |
-| sort-method | sorting method, works when `sortable` is `true` | Function(a, b) | — | — |
+| sort-method | sorting method, works when `sortable` is `true`. Should return a boolean. | Function(a, b) | — | — |
 | resizable | whether column width can be resized, works when `border` of `el-table` is `true` | boolean | — | false |
 | formatter | function that formats content | Function(row, column) | — | — |
 | show-overflow-tooltip | whether to hide extra content and show them in a tooltip when hovering on the cell | boolean | — | false |
@@ -1742,6 +1769,7 @@ For table of numbers, you can add an extra row at the table footer displaying ea
 | selectable | function that determines if a certain row can be selected, works when `type` is 'selection' | Function(row, index) | — | — |
 | reserve-selection | whether to reserve selection after data refreshing, works when `type` is 'selection' | boolean | — | false |
 | filters | an array of data filtering options. For each element in this array, `text` and `value` are required | Array[{ text, value }] | — | — |
+| filter-placement | placement for the filter dropdown | String | same as Tooltip's `placement` | — |
 | filter-multiple | whether data filtering supports multiple options | Boolean | — | true |
 | filter-method | data filtering method. If `filter-multiple` is on, this method will be called multiple times for each row, and a row will display if one of the calls returns `true` | Function(value, row) | — | — |
 | filtered-value | filter value for selected data, might be useful when table header is rendered with `render-header` | Array | — | — |

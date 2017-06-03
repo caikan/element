@@ -3,6 +3,7 @@ import ajax from './ajax';
 import UploadDragger from './upload-dragger.vue';
 
 export default {
+  inject: ['uploader'],
   components: {
     UploadDragger
   },
@@ -47,7 +48,8 @@ export default {
 
   data() {
     return {
-      mouseover: false
+      mouseover: false,
+      reqs: {}
     };
   },
 
@@ -60,7 +62,6 @@ export default {
 
       if (!files) return;
       this.uploadFiles(files);
-      this.$refs.input.value = null;
     },
     uploadFiles(files) {
       let postFiles = Array.prototype.slice.call(files);
@@ -74,6 +75,8 @@ export default {
       });
     },
     upload(rawFile, file) {
+      this.$refs.input.value = null;
+
       if (!this.beforeUpload) {
         return this.post(rawFile);
       }
@@ -95,7 +98,23 @@ export default {
         this.onRemove(rawFile, true);
       }
     },
+    abort(file) {
+      const { reqs } = this;
+      if (file) {
+        let uid = file;
+        if (file.uid) uid = file.uid;
+        if (reqs[uid]) {
+          reqs[uid].abort();
+        }
+      } else {
+        Object.keys(reqs).forEach((uid) => {
+          if (reqs[uid]) reqs[uid].abort();
+          delete reqs[uid];
+        });
+      }
+    },
     post(rawFile) {
+      const { uid } = rawFile;
       const options = {
         headers: this.headers,
         withCredentials: this.withCredentials,
@@ -108,14 +127,17 @@ export default {
         },
         onSuccess: res => {
           this.onSuccess(res, rawFile);
+          delete this.reqs[uid];
         },
         onError: err => {
           this.onError(err, rawFile);
+          delete this.reqs[uid];
         }
       };
-      const requestPromise = this.httpRequest(options);
-      if (requestPromise && requestPromise.then) {
-        requestPromise.then(options.onSuccess, options.onError);
+      const req = this.httpRequest(options);
+      this.reqs[uid] = req;
+      if (req && req.then) {
+        req.then(options.onSuccess, options.onError);
       }
     },
     handleClick() {
